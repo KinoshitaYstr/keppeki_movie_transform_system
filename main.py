@@ -3,6 +3,8 @@ import numpy as np
 from tqdm import tqdm
 import os
 import ctypes
+import pyautogui
+from screeninfo import get_monitors
 
 def imshow_fullscreen(winname, img):
     cv2.namedWindow(winname, cv2.WINDOW_NORMAL)
@@ -21,12 +23,38 @@ def main():
 def test():
     name = "a.mp4"
     video = cv2.VideoCapture(name)
+    img_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    img_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    img_original = np.float32([
+        [0, 0],
+        [img_width, 0],
+        [0, img_height],
+        [img_width, img_height]
+    ])
+    back_size = (get_monitors()[0].width, get_monitors()[0].height)
     while True:
         ret, img = video.read()
         if not ret:
-            break
-        imshow_fullscreen("test", img)
+            video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            continue
         key = cv2.waitKey(1)&0xff
+        if key == ord('q'):
+            break
+        get_p = pyautogui.position()
+
+        img_trans = np.float32([
+            [0, 0],
+            [img_width, 0],
+            [0, img_height],
+            #[img_width, img_height]
+            get_p
+        ])
+        matrix = cv2.getPerspectiveTransform(img_original, img_trans)
+        img = cv2.warpPerspective(img, matrix, back_size)
+
+        imshow_fullscreen("test", img)
+
+
     video.release()
 
 if __name__ != "__main__":
