@@ -3,3 +3,4 @@ tqdm
 pyautogui
 screeninfo
 mouse
+moviepy

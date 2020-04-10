@@ -6,6 +6,7 @@ import ctypes
 import pyautogui
 from screeninfo import get_monitors
 import mouse
+import moviepy.editor as mp
 
 class MouseData():
     def __init__(self):
@@ -19,6 +20,12 @@ class MouseData():
         f = self.click_flag
         self.click_flag = False
         return f
+
+def copy_movie_audio(input_name, output_name, tmp_output_name="tmp.mp3", fname="tmp.mp3"):
+    clip = mp.VideoFileClip(input_name).subclip()
+    clip.audio.write_audiofile(fname)
+    clip = mp.VideoFileClip(tmp_output_name).subclip()
+    clip.write_videofile(output_name, audio=fname)
 
 def judge_area(target, length=10):
     pos = pyautogui.position()
@@ -42,6 +49,7 @@ def main():
 
 def test():
     name = "a.mp4"
+    tmp_output_name = "tmp.mp4"
     output_name = "b.mp4"
     
     video = cv2.VideoCapture(name)
@@ -111,7 +119,7 @@ def test():
     video.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    output = cv2.VideoWriter(output_name, fourcc, fps, back_size)
+    output = cv2.VideoWriter(tmp_output_name, fourcc, fps, back_size)
     
     for i in tqdm(range(n_frames)):
         ret, img = video.read()
@@ -122,6 +130,8 @@ def test():
 
     video.release()
     output.release()
+
+    copy_movie_audio(name, output_name, tmp_output_name)
 
 if __name__ != "__main__":
     main()
