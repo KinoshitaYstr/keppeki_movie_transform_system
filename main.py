@@ -20,6 +20,12 @@ class MouseData():
         self.click_flag = False
         return f
 
+def judge_area(target, length=10):
+    pos = pyautogui.position()
+    d = (pos[0]-target[0])*(pos[0]-target[0])
+    d += (pos[1]-target[1])*(pos[1]-target[1])
+    return d < length*length
+
 def imshow_fullscreen(winname, img):
     cv2.namedWindow(winname, cv2.WINDOW_NORMAL)
     cv2.setWindowProperty(winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
@@ -64,7 +70,14 @@ def test():
             break
 
         if flag == -1 and m.get_click():
-            flag = 1
+            if judge_area(p_up_left):
+                flag = 1
+            elif judge_area(p_up_right):
+                flag = 2
+            elif judge_area(p_under_left):
+                flag = 3
+            elif judge_area(p_under_right):
+                flag = 4
         elif m.get_click():
             flag = -1
         elif flag == 1:
@@ -81,6 +94,11 @@ def test():
         ])
         matrix = cv2.getPerspectiveTransform(img_original, img_trans)
         img = cv2.warpPerspective(img, matrix, back_size)
+
+        cv2.circle(img, tuple(p_up_left), 10, (0, 0, 255), 1)
+        cv2.circle(img, tuple(p_up_right), 10, (0, 0, 255), 1)
+        cv2.circle(img, tuple(p_under_left), 10, (0, 0, 255), 1)
+        cv2.circle(img, tuple(p_under_right), 10, (0, 0, 255), 1)
 
         imshow_fullscreen("test", img)
 
