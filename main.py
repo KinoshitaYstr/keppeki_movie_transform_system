@@ -7,6 +7,8 @@ import pyautogui
 from screeninfo import get_monitors
 import mouse
 import moviepy.editor as mp
+import argparse
+import random
 
 class MouseData():
     def __init__(self):
@@ -45,12 +47,18 @@ def delete_frame(winname, rgb=(0, 0, 0)):
         ctypes.windll.user32.SetClassLongPtrW(hwnd, -10, ctypes.windll.Gdi32.CreateSolidBrush(rgb[0], rgb[1], rgb[2]))
 
 def main():
-    name = "a.mp4"
-    output_name = "b.mp4"
-    tmp_output_name = "tmp.mp4"
-    tmp_sound = "tmp.mp3"
+    parser = argparse.ArgumentParser(description="映像射影変換ツール")
+    parser.add_argument('input_name', help="射影変換対象動画名")
+    parser.add_argument('output_name', help="変換後出力動画名(mp4)")
     
-    video = cv2.VideoCapture(name)
+    args = parser.parse_args()
+
+    input_name = args.input_name
+    output_name = args.output_name
+    tmp_output_name = "tmp_{}.mp4".format(random.randint(0,1000000000))
+    tmp_sound = "tmp_{}.mp3".format(random.randint(0,1000000000))
+    
+    video = cv2.VideoCapture(input_name)
 
     img_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     img_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -132,7 +140,7 @@ def main():
     video.release()
     output.release()
 
-    copy_movie_audio(name, output_name, tmp_output_name, tmp_sound)
+    copy_movie_audio(input_name, output_name, tmp_output_name, tmp_sound)
 
     os.remove(tmp_output_name)
     os.remove(tmp_sound)

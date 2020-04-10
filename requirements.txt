@@ -1,6 +1,6 @@
-opencv-python
-tqdm
-pyautogui
-screeninfo
-mouse
-moviepy
+opencv-python == 4.2.0.32
+tqdm == 4.42.1
+pyautogui == 0.9.48
+screeninfo == 0.6.1
+mouse == 0.7.1
+moviepy == 1.0.2
