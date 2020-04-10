@@ -5,6 +5,20 @@ import os
 import ctypes
 import pyautogui
 from screeninfo import get_monitors
+import mouse
+
+class MouseData():
+    def __init__(self):
+        self.click_flag = False
+        mouse.on_click(self.clicking)
+    
+    def clicking(self):
+        self.click_flag = True
+    
+    def get_click(self):
+        f = self.click_flag
+        self.click_flag = False
+        return f
 
 def imshow_fullscreen(winname, img):
     cv2.namedWindow(winname, cv2.WINDOW_NORMAL)
@@ -37,8 +51,9 @@ def test():
     
     back_size = (get_monitors()[0].width, get_monitors()[0].height)
     
-    
-    mode = 1
+    m = MouseData()
+
+    flag = -1
     while True:
         ret, img = video.read()
         if not ret:
@@ -48,13 +63,17 @@ def test():
         if key == ord('q'):
             break
 
-        if mode == 1:
+        if flag == -1 and m.get_click():
+            flag = 1
+        elif m.get_click():
+            flag = -1
+        elif flag == 1:
             p_up_left = pyautogui.position()
-        elif mode == 2:
+        elif flag == 2:
             p_up_right = pyautogui.position()
-        elif mode == 3:
+        elif flag == 3:
             p_under_left = pyautogui.position()
-        elif mode == 4:
+        elif flag == 4:
             p_under_right = pyautogui.position()
 
         img_trans = np.float32([
