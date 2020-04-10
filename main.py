@@ -25,13 +25,20 @@ def test():
     video = cv2.VideoCapture(name)
     img_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     img_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    p_up_left = [0, 0]
+    p_up_right = [img_width, 0]
+    p_under_left = [0, img_height]
+    p_under_right = [img_width, img_height]
+    
     img_original = np.float32([
-        [0, 0],
-        [img_width, 0],
-        [0, img_height],
-        [img_width, img_height]
+        p_up_left, p_up_right, p_under_left, p_under_right
     ])
+    
     back_size = (get_monitors()[0].width, get_monitors()[0].height)
+    
+    
+    mode = 1
     while True:
         ret, img = video.read()
         if not ret:
@@ -40,14 +47,18 @@ def test():
         key = cv2.waitKey(1)&0xff
         if key == ord('q'):
             break
-        get_p = pyautogui.position()
+
+        if mode == 1:
+            p_up_left = pyautogui.position()
+        elif mode == 2:
+            p_up_right = pyautogui.position()
+        elif mode == 3:
+            p_under_left = pyautogui.position()
+        elif mode == 4:
+            p_under_right = pyautogui.position()
 
         img_trans = np.float32([
-            [0, 0],
-            [img_width, 0],
-            [0, img_height],
-            #[img_width, img_height]
-            get_p
+            p_up_left, p_up_right, p_under_left, p_under_right
         ])
         matrix = cv2.getPerspectiveTransform(img_original, img_trans)
         img = cv2.warpPerspective(img, matrix, back_size)
