@@ -42,10 +42,15 @@ def main():
 
 def test():
     name = "a.mp4"
+    output_name = "b.mp4"
+    
     video = cv2.VideoCapture(name)
+
     img_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     img_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    
+    n_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(video.get(cv2.CAP_PROP_FPS))
+
     p_up_left = [0, 0]
     p_up_right = [img_width, 0]
     p_under_left = [0, img_height]
@@ -101,9 +106,22 @@ def test():
         cv2.circle(img, tuple(p_under_right), 10, (0, 0, 255), 1)
 
         imshow_fullscreen("test", img)
+    
+    cv2.destroyAllWindows()
+    video.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+    output = cv2.VideoWriter(output_name, fourcc, fps, back_size)
+    
+    for i in tqdm(range(n_frames)):
+        ret, img = video.read()
+        if not ret:
+            break
+        img = cv2.warpPerspective(img, matrix, back_size)
+        output.write(img)
 
     video.release()
+    output.release()
 
 if __name__ != "__main__":
     main()
