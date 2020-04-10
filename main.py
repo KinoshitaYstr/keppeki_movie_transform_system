@@ -45,12 +45,10 @@ def delete_frame(winname, rgb=(0, 0, 0)):
         ctypes.windll.user32.SetClassLongPtrW(hwnd, -10, ctypes.windll.Gdi32.CreateSolidBrush(rgb[0], rgb[1], rgb[2]))
 
 def main():
-    pass
-
-def test():
     name = "a.mp4"
-    tmp_output_name = "tmp.mp4"
     output_name = "b.mp4"
+    tmp_output_name = "tmp.mp4"
+    tmp_sound = "tmp.mp3"
     
     video = cv2.VideoCapture(name)
 
@@ -79,8 +77,11 @@ def test():
             video.set(cv2.CAP_PROP_POS_FRAMES, 0)
             continue
         key = cv2.waitKey(1)&0xff
-        if key == ord('q'):
+        if key == ord('s'):
             break
+        elif key == ord('q'):
+            video.release()
+            return
 
         if flag == -1 and m.get_click():
             if judge_area(p_up_left):
@@ -131,9 +132,10 @@ def test():
     video.release()
     output.release()
 
-    copy_movie_audio(name, output_name, tmp_output_name)
+    copy_movie_audio(name, output_name, tmp_output_name, tmp_sound)
 
-if __name__ != "__main__":
+    os.remove(tmp_output_name)
+    os.remove(tmp_sound)
+
+if __name__ == "__main__":
     main()
-else:
-    test()
