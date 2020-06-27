@@ -5,7 +5,6 @@ import os
 import ctypes
 import pyautogui
 from screeninfo import get_monitors
-import mouse
 import moviepy.editor as mp
 import argparse
 import random
