@@ -37,7 +37,7 @@ def delete_frame(winname, rgb=(0, 0, 0)):
         ctypes.windll.user32.SetClassLongPtrW(hwnd, -10, ctypes.windll.Gdi32.CreateSolidBrush(rgb[0], rgb[1], rgb[2]))
 
 def main():
-    parser = argparse.ArgumentParser(description="映像射影変換ツール")
+    parser = argparse.ArgumentParser(description="映像射影変換ツール\npython3 main.py input_name output_name")
     parser.add_argument('input_name', help="射影変換対象動画名")
     parser.add_argument('output_name', help="変換後出力動画名(mp4)")
     
