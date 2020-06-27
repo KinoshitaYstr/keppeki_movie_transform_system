@@ -4,6 +4,7 @@
 * pip install -r requirements.txt
 
 ### usage
+## unix?
 * python main.py <input file name> <output file name>
 
 ## other?
