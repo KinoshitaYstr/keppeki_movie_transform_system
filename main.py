@@ -10,18 +10,9 @@ import moviepy.editor as mp
 import argparse
 import random
 
-class MouseData():
-    def __init__(self):
-        self.click_flag = False
-        mouse.on_click(self.clicking)
-    
-    def clicking(self):
-        self.click_flag = True
-    
-    def get_click(self):
-        f = self.click_flag
-        self.click_flag = False
-        return f
+def onMouse(event, x, y, flag, params):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        params["clicked"] = True
 
 def copy_movie_audio(input_name, output_name, tmp_output_name="tmp.mp3", fname="tmp.mp3"):
     clip = mp.VideoFileClip(input_name).subclip()
@@ -65,6 +56,16 @@ def main():
     n_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = int(video.get(cv2.CAP_PROP_FPS))
 
+    params = {"clicked": False}
+    cv2.namedWindow("cap", cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty("cap", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    cv2.setMouseCallback("cap", onMouse, params)
+
+    back_size = (get_monitors()[0].width, get_monitors()[0].height)
+
+    rate = 1 if 1 <= back_size[0]/img_width else back_size[0]/img_width
+    rate = rate if rate <= back_size[1]/img_height else back_size[1]/img_height
+
     p_up_left = [0, 0]
     p_up_right = [img_width, 0]
     p_under_left = [0, img_height]
@@ -73,10 +74,11 @@ def main():
     img_original = np.float32([
         p_up_left, p_up_right, p_under_left, p_under_right
     ])
-    
-    back_size = (get_monitors()[0].width, get_monitors()[0].height)
-    
-    m = MouseData()
+
+    p_up_left = [0, 0]
+    p_up_right = [int(img_width*rate), 0]
+    p_under_left = [0, int(img_height*rate)]
+    p_under_right = [int(img_width*rate), int(img_height*rate)]
 
     flag = -1
     while True:
@@ -91,7 +93,8 @@ def main():
             video.release()
             return
 
-        if flag == -1 and m.get_click():
+        if flag == -1 and params["clicked"]:
+            params["clicked"] = False
             if judge_area(p_up_left):
                 flag = 1
             elif judge_area(p_up_right):
@@ -100,7 +103,8 @@ def main():
                 flag = 3
             elif judge_area(p_under_right):
                 flag = 4
-        elif m.get_click():
+        elif params["clicked"]:
+            params["clicked"] = False
             flag = -1
         elif flag == 1:
             p_up_left = pyautogui.position()
@@ -122,7 +126,7 @@ def main():
         cv2.circle(img, tuple(p_under_left), 10, (0, 0, 255), 1)
         cv2.circle(img, tuple(p_under_right), 10, (0, 0, 255), 1)
 
-        imshow_fullscreen("test", img)
+        imshow_fullscreen("cap", img)
     
     cv2.destroyAllWindows()
     video.set(cv2.CAP_PROP_POS_FRAMES, 0)
