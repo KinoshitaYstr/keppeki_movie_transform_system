@@ -1,9 +1,17 @@
 import sys
-import PyQt5.QtWidgets
+from PyQt5.QtWidgets import QApplication, QWidget
 
-app = PyQt5.QtWidgets.QApplication([])
-w = PyQt5.QtWidgets.QWidget()
-w.resize(300, 200)
-w.setWindowTitle("test")
-w.show()
-sys.exit(app.exec())
+class Example(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    
+    def initUI(self):
+        self.setGeometry(300, 300, 300, 220)
+        self.setWindowTitle("Example")
+        self.show()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    ex = Example()
+    sys.exit(app.exec_())
