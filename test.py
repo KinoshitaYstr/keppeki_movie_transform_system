@@ -1,5 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton
+from PyQt5.QtGui import QFont
 
 class Example(QWidget):
     def __init__(self):
@@ -7,7 +8,15 @@ class Example(QWidget):
         self.initUI()
     
     def initUI(self):
-        self.setGeometry(300, 300, 300, 220)
+        QToolTip.setFont(QFont('SansSerif', 10))
+        self.setToolTip('This is a <b>QWidget</b> widget')
+        
+        btn = QPushButton('button', self)
+        btn.setToolTip('This is a <b>QPushButton</b> widget')
+        btn.resize(btn.sizeHint())
+        btn.move(50, 50)
+
+        self.setGeometry(300, 300, 300, 200)
         self.setWindowTitle("Example")
         self.show()
 
