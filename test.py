@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import QCoreApplication
 
 class Example(QWidget):
     def __init__(self):
@@ -11,8 +12,10 @@ class Example(QWidget):
         QToolTip.setFont(QFont('SansSerif', 10))
         self.setToolTip('This is a <b>QWidget</b> widget')
         
-        btn = QPushButton('button', self)
-        btn.setToolTip('This is a <b>QPushButton</b> widget')
+        btn = QPushButton('Quit', self)
+        btn.clicked.connect(QCoreApplication.instance().quit)
+        btn.setToolTip('This is a <b>Quit Button</b> widget')
+
         btn.resize(btn.sizeHint())
         btn.move(50, 50)
 
