@@ -11,7 +11,8 @@ import random
 
 # pyqt関係
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QColorDialog, QFrame
+from PyQt5.QtGui import QColor
 
 # pyqtでGUI作成
 class MainGUI(QMainWindow):
@@ -19,6 +20,7 @@ class MainGUI(QMainWindow):
         super().__init__()
         self.original_movie_name = ""
         self.font_size = 15 # デフォルトは大きさ15?
+        self.background_color = QColor(0, 0, 0)
         self.initUI()
 
     def initUI(self):
@@ -27,7 +29,7 @@ class MainGUI(QMainWindow):
 
         # 映像読込ボタン関係
         # 説明文?
-        self.open_movie_label = self.create_label("変形したい映像を選択してください")
+        self.open_movie_label = self.create_label("変形したい映像の選択")
         self.open_movie_label.move(10, 10)
         # ボタン
         self.open_movie_button = QPushButton("開く", self)
@@ -37,6 +39,17 @@ class MainGUI(QMainWindow):
         self.original_movie_name_label = self.create_label("None")
         self.original_movie_name_label.move(130, 47)
 
+        # 背景色の指定
+        self.select_back_color_label = self.create_label("背景色の選択")
+        self.select_back_color_label.move(10, 90)
+        self.sample_back_color_frame = QFrame(self)
+        self.sample_back_color_frame.setStyleSheet("QWidget { background-color : %s }" % self.background_color.name())
+        self.sample_back_color_frame.resize(100, 100)
+        self.sample_back_color_frame.move(130, 120)
+        self.select_back_color_button = QPushButton("選択", self)
+        self.select_back_color_button.clicked.connect(self.select_background_color)
+        self.select_back_color_button.move(10, 120)
+
         self.show()
     
     def create_label(self, label_content):
@@ -44,13 +57,19 @@ class MainGUI(QMainWindow):
         l.resize(self.font_size*len(label_content), self.font_size)
         return l
 
-    # ファイル読み込み
+    # ファイル選択
     def open_original_movie(self):
         fname = QFileDialog.getOpenFileName(self, "開く", os.getcwd())
         self.original_movie_name = fname[0]
         self.original_movie_name_label.setText(self.original_movie_name)
         self.original_movie_name_label.resize(self.font_size*len(self.original_movie_name), self.font_size)
-
+    
+    # 背景色の選択
+    def select_background_color(self):
+        col = QColorDialog.getColor()
+        if col.isValid():
+            self.background_color = col
+            self.sample_back_color_frame.setStyleSheet("QWidget { background-color : %s }" % self.background_color.name())
 
 # 基礎機能
 def onMouse(event, x, y, flag, params):
