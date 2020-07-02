@@ -9,6 +9,50 @@ import moviepy.editor as mp
 import argparse
 import random
 
+# pyqt関係
+import sys
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog
+
+# pyqtでGUI作成
+class MainGUI(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.original_movie_name = ""
+        self.font_size = 15 # デフォルトは大きさ15?
+        self.initUI()
+
+    def initUI(self):
+        self.resize(1000, 500)
+        self.setWindowTitle("映像変換器")
+
+        # 映像読込ボタン関係
+        # 説明文?
+        self.open_movie_label = self.create_label("変形したい映像を選択してください")
+        self.open_movie_label.move(10, 10)
+        # ボタン
+        self.open_movie_button = QPushButton("開く", self)
+        self.open_movie_button.clicked.connect(self.open_original_movie)
+        self.open_movie_button.move(10, 40)
+        # 対象ファイル名
+        self.original_movie_name_label = self.create_label("None")
+        self.original_movie_name_label.move(130, 47)
+
+        self.show()
+    
+    def create_label(self, label_content):
+        l = QLabel(label_content, self)
+        l.resize(self.font_size*len(label_content), self.font_size)
+        return l
+
+    # ファイル読み込み
+    def open_original_movie(self):
+        fname = QFileDialog.getOpenFileName(self, "開く", os.getcwd())
+        self.original_movie_name = fname[0]
+        self.original_movie_name_label.setText(self.original_movie_name)
+        self.original_movie_name_label.resize(self.font_size*len(self.original_movie_name), self.font_size)
+
+
+# 基礎機能
 def onMouse(event, x, y, flag, params):
     if event == cv2.EVENT_LBUTTONDOWN:
         params["clicked"] = True
@@ -148,5 +192,9 @@ def main():
     os.remove(tmp_output_name)
     os.remove(tmp_sound)
 
-if __name__ == "__main__":
+if __name__ != "__main__":
     main()
+else:
+    app = QApplication(sys.argv)
+    main_gui = MainGUI()
+    sys.exit(app.exec_())
