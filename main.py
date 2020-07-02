@@ -11,8 +11,9 @@ import random
 
 # pyqt関係
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QColorDialog, QFrame
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QColorDialog, QFrame, QLineEdit
 from PyQt5.QtGui import QColor
+from PyQt5.QtCore import QCoreApplication
 
 # pyqtでGUI作成
 class MainGUI(QMainWindow):
@@ -21,6 +22,7 @@ class MainGUI(QMainWindow):
         self.original_movie_name = ""
         self.font_size = 15 # デフォルトは大きさ15?
         self.background_color = QColor(0, 0, 0)
+        self.output_name = "result.mp4"
         self.initUI()
 
     def initUI(self):
@@ -50,6 +52,17 @@ class MainGUI(QMainWindow):
         self.select_back_color_button.clicked.connect(self.select_background_color)
         self.select_back_color_button.move(10, 120)
 
+        # ファイル名の指定
+        self.output_name_label = self.create_label("出力ファイル名")
+        self.output_name_label.move(10, 230+7)
+        self.output_name_edit = QLineEdit(self.output_name, self)
+        self.output_name_edit.move(130, 230)
+
+        # 変形実行ボタン作成
+        self.transform_button = QPushButton("変形", self)
+        self.transform_button.clicked.connect(self.go_transform)
+        self.transform_button.move(10, 280)
+
         self.show()
     
     def create_label(self, label_content):
@@ -70,6 +83,12 @@ class MainGUI(QMainWindow):
         if col.isValid():
             self.background_color = col
             self.sample_back_color_frame.setStyleSheet("QWidget { background-color : %s }" % self.background_color.name())
+
+    # 変形実行ボタン
+    def go_transform(self):
+        self.output_name = self.output_name_edit.text()
+        # print(self.output_name)
+        QCoreApplication.instance().quit()
 
 # 基礎機能
 def onMouse(event, x, y, flag, params):
