@@ -128,7 +128,8 @@ class MainGUI(QMainWindow):
                 p_up_left, p_up_right, p_under_left, p_under_right
             ])
             matrix = cv2.getPerspectiveTransform(img_original, img_trans)
-            self.img = cv2.warpPerspective(self.img, matrix, back_size)
+            rgb = self.background_color.getRgb()
+            self.img = cv2.warpPerspective(self.img, matrix, back_size, borderValue=(rgb[2], rgb[1], rgb[0]))
             key = cv2.waitKey(1)&0xff
             self.show_img_fullscreen()
         cv2.destroyAllWindows()
