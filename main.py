@@ -23,6 +23,7 @@ class MainGUI(QMainWindow):
         self.font_size = 15 # デフォルトは大きさ15?
         self.background_color = QColor(0, 0, 0)
         self.output_name = "result.mp4"
+        self.click_circle_area = 30
         self.initUI()
 
     def initUI(self):
@@ -121,6 +122,7 @@ class MainGUI(QMainWindow):
         # cv2.setMouseCallback("transform", onMouse, params)
 
         while True:
+            key = cv2.waitKey(1)&0xff
             ret, self.img = video.read()
             if not ret:
                 break
@@ -130,7 +132,10 @@ class MainGUI(QMainWindow):
             matrix = cv2.getPerspectiveTransform(img_original, img_trans)
             rgb = self.background_color.getRgb()
             self.img = cv2.warpPerspective(self.img, matrix, back_size, borderValue=(rgb[2], rgb[1], rgb[0]))
-            key = cv2.waitKey(1)&0xff
+            cv2.circle(self.img, tuple(p_up_left), self.click_circle_area, (0, 0, 255, 1))
+            cv2.circle(self.img, tuple(p_up_right), self.click_circle_area, (0, 0, 255, 1))
+            cv2.circle(self.img, tuple(p_under_left), self.click_circle_area, (0, 0, 255, 1))
+            cv2.circle(self.img, tuple(p_under_right), self.click_circle_area, (0, 0, 255, 1))
             self.show_img_fullscreen()
         cv2.destroyAllWindows()
         video.release()
