@@ -88,7 +88,56 @@ class MainGUI(QMainWindow):
     def go_transform(self):
         self.output_name = self.output_name_edit.text()
         # print(self.output_name)
-        QCoreApplication.instance().quit()
+        # QCoreApplication.instance().quit()
+        self.close()
+        self.transform_movie()
+    
+    # 映像変形の指定？関数
+    def transform_movie(self):
+        video = cv2.VideoCapture(self.original_movie_name)
+
+        img_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        img_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        back_size = (get_monitors()[0].width, get_monitors()[0].height)
+        rate = 1 if 1 <= back_size[0]/img_width else back_size[0]/img_width
+        rate = rate if rate <= back_size[1]/img_height else back_size[1]/img_height
+        p_up_left = [0, 0]
+        p_up_right = [img_width, 0]
+        p_under_left = [0, img_height]
+        p_under_right = [img_width, img_height]
+        
+        img_original = np.float32([
+            p_up_left, p_up_right, p_under_left, p_under_right
+        ])
+
+        p_up_left = [0, 0]
+        p_up_right = [int(img_width*rate), 0]
+        p_under_left = [0, int(img_height*rate)]
+        p_under_right = [int(img_width*rate), int(img_height*rate)]
+
+        self.winname = "transform"
+        cv2.namedWindow(self.winname, cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty(self.winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        # cv2.setMouseCallback("transform", onMouse, params)
+
+        while True:
+            ret, self.img = video.read()
+            if not ret:
+                break
+            img_trans = np.float32([
+                p_up_left, p_up_right, p_under_left, p_under_right
+            ])
+            matrix = cv2.getPerspectiveTransform(img_original, img_trans)
+            self.img = cv2.warpPerspective(self.img, matrix, back_size)
+            key = cv2.waitKey(1)&0xff
+            self.show_img_fullscreen()
+        cv2.destroyAllWindows()
+        video.release()
+    
+    def show_img_fullscreen(self):
+        cv2.namedWindow(self.winname, cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty(self.winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.imshow(self.winname, self.img)    
 
 # 基礎機能
 def onMouse(event, x, y, flag, params):
