@@ -25,7 +25,7 @@ class MainGUI(QMainWindow):
         self.original_movie_name = ""
         self.font_size = 15 # デフォルトは大きさ15?
         self.background_color = QColor(0, 0, 0)
-        self.output_name = "result.mp4"
+        self.output_name = "result.json"
         self.click_circle_area = 30
         self.initUI()
 
@@ -60,11 +60,11 @@ class MainGUI(QMainWindow):
         self.select_back_color_button.clicked.connect(self.select_background_color)
         self.select_back_color_button.move(10, 120)
 
-        # ファイル名の指定
-        self.output_name_label = self.create_label("出力ファイル名")
+        # ファイル名(json)の指定
+        self.output_name_label = self.create_label("出力ファイル名(.json)")
         self.output_name_label.move(10, 230+7)
         self.output_name_edit = QLineEdit(self.output_name, self)
-        self.output_name_edit.move(130, 230)
+        self.output_name_edit.move(130+30, 230)
 
         # 変形実行ボタン作成
         self.transform_button = QPushButton("変形", self)
@@ -75,13 +75,16 @@ class MainGUI(QMainWindow):
     
     def create_label(self, label_content):
         l = QLabel(label_content, self)
-        l.resize(self.font_size*len(label_content), self.font_size)
+        l.resize(self.font_size*len(label_content), self.font_size*1.3)
         return l
 
     # ファイル選択
     def open_original_movie(self):
         fname = QFileDialog.getOpenFileName(self, "開く", os.getcwd())
         self.original_movie_name = fname[0]
+        self.output_name = fname[0].split("/")[-1]
+        self.output_name = self.output_name.split(".")[0]+".json"
+        self.output_name_edit.setText(self.output_name)
         self.original_movie_name_label.setText(self.original_movie_name)
         self.original_movie_name_label.resize(self.font_size*len(self.original_movie_name), self.font_size)
     
@@ -194,7 +197,7 @@ class MainGUI(QMainWindow):
         json_datas["back_color"] = self.background_color.getRgb()
         # 座標をjsonでせーぶ
         # print(self.set_position)
-        with open("pos.json", 'w') as f:
+        with open(self.output_name, 'w') as f:
             json.dump(json_datas, f, indent=2)
     
     def judge_area(self, target):
@@ -208,6 +211,8 @@ class MainGUI(QMainWindow):
         cv2.setWindowProperty(winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.imshow(winname, img)    
     
+    """
+    # もう一つプログラム作ってそっちで変形する
     def go_transform_movie(self):
         # 一度音楽を別で保存(抽出)してから変形後の動画に乗っける感じ
         video = cv2.VideoCapture(self.original_movie_name)
@@ -228,7 +233,7 @@ class MainGUI(QMainWindow):
         print(format_name)
         base_sound = AudioSegment.from_file(self.original_movie_name, format=format_name)
         base_sound.export("tmp.mp3")
-
+    """
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
