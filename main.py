@@ -9,6 +9,8 @@ import moviepy.editor as mp
 import argparse
 import random
 import json
+import pydub
+from pydub import AudioSegment
 
 # pyqt関係
 import sys
@@ -97,10 +99,13 @@ class MainGUI(QMainWindow):
         # print(self.output_name)
         # QCoreApplication.instance().quit()
         self.close()
-        self.transform_movie()
+        self.set_transform_movie()
+        
+        # self.go_transform_movie()
+        # self.get_sound()
     
     # 映像変形の指定？関数
-    def transform_movie(self):
+    def set_transform_movie(self):
         video = cv2.VideoCapture(self.original_movie_name)
 
         img_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -113,6 +118,11 @@ class MainGUI(QMainWindow):
         p_under_left = [0, img_height]
         p_under_right = [img_width, img_height]
         
+        origina_position = {}
+        origina_position['p_up_left'] = p_up_left
+        origina_position['p_up_right'] = p_up_right
+        origina_position['p_under_left'] = p_under_left
+        origina_position['p_under_right'] = p_under_right
         img_original = np.float32([
             p_up_left, p_up_right, p_under_left, p_under_right
         ])
@@ -176,10 +186,16 @@ class MainGUI(QMainWindow):
         self.set_position['p_up_right'] = p_up_right
         self.set_position['p_under_left'] = p_under_left
         self.set_position['p_under_right'] = p_under_right
+        json_datas = {}
+        json_datas["target_name"] = self.original_movie_name
+        json_datas["original_pos"] = origina_position
+        json_datas["transform_pos"] = self.set_position
+        json_datas["back_size"] = back_size
+        json_datas["back_color"] = self.background_color.name()
         # 座標をjsonでせーぶ
         # print(self.set_position)
         with open("pos.json", 'w') as f:
-            json.dump(self.set_position, f, indent=2)
+            json.dump(json_datas, f, indent=2)
     
     def judge_area(self, target):
         pos = pyautogui.position()
@@ -191,6 +207,27 @@ class MainGUI(QMainWindow):
         cv2.namedWindow(self.winname, cv2.WINDOW_NORMAL)
         cv2.setWindowProperty(self.winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.imshow(self.winname, self.img)    
+    
+    def go_transform_movie(self):
+        # 一度音楽を別で保存(抽出)してから変形後の動画に乗っける感じ
+        video = cv2.VideoCapture(self.original_movie_name)
+        fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+        fps = int(video.get(cv2.CAP_PROP_FPS))
+        back_size = (get_monitors()[0].width, get_monitors()[0].height)
+        output = cv2.VideoWriter("result.mp4", fourcc, fps, back_size)
+        while True:
+            ret, img = video.read()
+            if not ret:
+                break
+        video.release()
+        output.release()
+    
+    def get_sound(self):
+        # 元映像から音声抽出
+        format_name = self.original_movie_name.split(".")[-1]
+        print(format_name)
+        base_sound = AudioSegment.from_file(self.original_movie_name, format=format_name)
+        base_sound.export("tmp.mp3")
 
 # 基礎機能
 def onMouse(event, x, y, flag, params):

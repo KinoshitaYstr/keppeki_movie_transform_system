@@ -8,3 +8,4 @@
 * python main.py <input file name> <output file name>
 
 ## other?
+* ffmpegいれろ
