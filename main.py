@@ -8,6 +8,7 @@ from screeninfo import get_monitors
 import moviepy.editor as mp
 import argparse
 import random
+import json
 
 # pyqt関係
 import sys
@@ -25,6 +26,11 @@ class MainGUI(QMainWindow):
         self.output_name = "result.mp4"
         self.click_circle_area = 30
         self.initUI()
+        self.set_position = {}
+
+    def on_mouse(self, event, x, y, flag, params):
+        if event == cv2.EVENT_LBUTTONDOWN:
+            params["clicked"] = True
 
     def initUI(self):
         self.resize(1000, 500)
@@ -116,16 +122,43 @@ class MainGUI(QMainWindow):
         p_under_left = [0, int(img_height*rate)]
         p_under_right = [int(img_width*rate), int(img_height*rate)]
 
+        params = {"clicked": False}
+
         self.winname = "transform"
         cv2.namedWindow(self.winname, cv2.WINDOW_NORMAL)
         cv2.setWindowProperty(self.winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        # cv2.setMouseCallback("transform", onMouse, params)
-
+        cv2.setMouseCallback(self.winname, self.on_mouse, params)
+        now_select_area_flag = -1
         while True:
             key = cv2.waitKey(1)&0xff
             ret, self.img = video.read()
             if not ret:
+                video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                continue
+            # エンターキー
+            if key == 13:
                 break
+            if params["clicked"]:
+                params["clicked"] = False
+                if now_select_area_flag == -1:
+                    if self.judge_area(p_up_left):
+                        now_select_area_flag = 1
+                    elif self.judge_area(p_up_right):
+                        now_select_area_flag = 2
+                    elif self.judge_area(p_under_left):
+                        now_select_area_flag = 3
+                    elif self.judge_area(p_under_right):
+                        now_select_area_flag = 4
+                else:
+                    now_select_area_flag = -1
+            elif now_select_area_flag == 1:
+                p_up_left = pyautogui.position()
+            elif now_select_area_flag == 2:
+                p_up_right = pyautogui.position()
+            elif now_select_area_flag == 3:
+                p_under_left = pyautogui.position()
+            elif now_select_area_flag == 4:
+                p_under_right = pyautogui.position()
             img_trans = np.float32([
                 p_up_left, p_up_right, p_under_left, p_under_right
             ])
@@ -139,7 +172,21 @@ class MainGUI(QMainWindow):
             self.show_img_fullscreen()
         cv2.destroyAllWindows()
         video.release()
+        self.set_position['p_up_left'] = p_up_left
+        self.set_position['p_up_right'] = p_up_right
+        self.set_position['p_under_left'] = p_under_left
+        self.set_position['p_under_right'] = p_under_right
+        # 座標をjsonでせーぶ
+        # print(self.set_position)
+        with open("pos.json", 'w') as f:
+            json.dump(self.set_position, f, indent=2)
     
+    def judge_area(self, target):
+        pos = pyautogui.position()
+        d = (pos[0]-target[0])^2
+        d += (pos[1]-target[1])^2
+        return d < self.click_circle_area^2
+
     def show_img_fullscreen(self):
         cv2.namedWindow(self.winname, cv2.WINDOW_NORMAL)
         cv2.setWindowProperty(self.winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
