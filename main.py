@@ -28,7 +28,6 @@ class MainGUI(QMainWindow):
         self.output_name = "result.mp4"
         self.click_circle_area = 30
         self.initUI()
-        self.set_position = {}
 
     def on_mouse(self, event, x, y, flag, params):
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -134,14 +133,14 @@ class MainGUI(QMainWindow):
 
         params = {"clicked": False}
 
-        self.winname = "transform"
-        cv2.namedWindow(self.winname, cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty(self.winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        cv2.setMouseCallback(self.winname, self.on_mouse, params)
+        winname = "transform"
+        cv2.namedWindow(winname, cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty(winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.setMouseCallback(winname, self.on_mouse, params)
         now_select_area_flag = -1
         while True:
             key = cv2.waitKey(1)&0xff
-            ret, self.img = video.read()
+            ret, img = video.read()
             if not ret:
                 video.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 continue
@@ -172,24 +171,25 @@ class MainGUI(QMainWindow):
             img_trans = np.float32([
                 p_up_left, p_up_right, p_under_left, p_under_right
             ])
-            matrix = cv2.getPerspectiveTransform(img_original, img_trans)
+            self.matrix = cv2.getPerspectiveTransform(img_original, img_trans)
             rgb = self.background_color.getRgb()
-            self.img = cv2.warpPerspective(self.img, matrix, back_size, borderValue=(rgb[2], rgb[1], rgb[0]))
-            cv2.circle(self.img, tuple(p_up_left), self.click_circle_area, (0, 0, 255, 1))
-            cv2.circle(self.img, tuple(p_up_right), self.click_circle_area, (0, 0, 255, 1))
-            cv2.circle(self.img, tuple(p_under_left), self.click_circle_area, (0, 0, 255, 1))
-            cv2.circle(self.img, tuple(p_under_right), self.click_circle_area, (0, 0, 255, 1))
-            self.show_img_fullscreen()
+            img = cv2.warpPerspective(img, self.matrix, back_size, borderValue=(rgb[2], rgb[1], rgb[0]))
+            cv2.circle(img, tuple(p_up_left), self.click_circle_area, (0, 0, 255, 1))
+            cv2.circle(img, tuple(p_up_right), self.click_circle_area, (0, 0, 255, 1))
+            cv2.circle(img, tuple(p_under_left), self.click_circle_area, (0, 0, 255, 1))
+            cv2.circle(img, tuple(p_under_right), self.click_circle_area, (0, 0, 255, 1))
+            self.show_img_fullscreen(img, winname)
         cv2.destroyAllWindows()
         video.release()
-        self.set_position['p_up_left'] = p_up_left
-        self.set_position['p_up_right'] = p_up_right
-        self.set_position['p_under_left'] = p_under_left
-        self.set_position['p_under_right'] = p_under_right
+        set_position = {}
+        set_position['p_up_left'] = p_up_left
+        set_position['p_up_right'] = p_up_right
+        set_position['p_under_left'] = p_under_left
+        set_position['p_under_right'] = p_under_right
         json_datas = {}
         json_datas["target_name"] = self.original_movie_name
         json_datas["original_pos"] = origina_position
-        json_datas["transform_pos"] = self.set_position
+        json_datas["transform_pos"] = set_position
         json_datas["back_size"] = back_size
         json_datas["back_color"] = self.background_color.name()
         # 座標をjsonでせーぶ
@@ -203,10 +203,10 @@ class MainGUI(QMainWindow):
         d += (pos[1]-target[1])^2
         return d < self.click_circle_area^2
 
-    def show_img_fullscreen(self):
-        cv2.namedWindow(self.winname, cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty(self.winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        cv2.imshow(self.winname, self.img)    
+    def show_img_fullscreen(self, img, winname):
+        cv2.namedWindow(winname, cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty(winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.imshow(winname, img)    
     
     def go_transform_movie(self):
         # 一度音楽を別で保存(抽出)してから変形後の動画に乗っける感じ
