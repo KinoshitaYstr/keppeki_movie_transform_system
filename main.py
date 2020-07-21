@@ -191,7 +191,7 @@ class MainGUI(QMainWindow):
         json_datas["original_pos"] = origina_position
         json_datas["transform_pos"] = set_position
         json_datas["back_size"] = back_size
-        json_datas["back_color"] = self.background_color.name()
+        json_datas["back_color"] = self.background_color.getRgb()
         # 座標をjsonでせーぶ
         # print(self.set_position)
         with open("pos.json", 'w') as f:
