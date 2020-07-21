@@ -1,16 +1,16 @@
 import cv2
 import numpy as np
-from tqdm import tqdm
+# from tqdm import tqdm
 import os
-import ctypes
+# import ctypes
 import pyautogui
 from screeninfo import get_monitors
-import moviepy.editor as mp
-import argparse
-import random
+# import moviepy.editor as mp
+# import argparse
+# import random
 import json
-import pydub
-from pydub import AudioSegment
+# import pydub
+# from pydub import AudioSegment
 
 # pyqt関係
 import sys
@@ -75,7 +75,7 @@ class MainGUI(QMainWindow):
     
     def create_label(self, label_content):
         l = QLabel(label_content, self)
-        l.resize(self.font_size*len(label_content), self.font_size*1.3)
+        l.resize(self.font_size*len(label_content), int(self.font_size*1.3))
         return l
 
     # ファイル選択
