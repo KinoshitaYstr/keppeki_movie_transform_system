@@ -32,15 +32,11 @@ class MainGUI(QMainWindow):
         # 座標出力のときのjsonの名前
         self.output_name = "result.json"
         # クリック有効範囲
-        self.click_circle_area = 30
+        self.click_circle_area = 10
         
         # UIつくるぜ！！
         self.initUI()
 
-    # マウスがクリックしたときにしたいこと
-    def on_mouse(self, event, x, y, flag, params):
-        if event == cv2.EVENT_LBUTTONDOWN:
-            params["clicked"] = True
 
     # 最初のUI
     def initUI(self):
@@ -223,8 +219,9 @@ class MainGUI(QMainWindow):
         p_under_left = [0+self.click_circle_area, int(movie_height*rate)-self.click_circle_area]
         # 右下
         p_under_right = [int(movie_width*rate)-self.click_circle_area, int(movie_height*rate)-self.click_circle_area]
+        # 配列セット
+        updated_position_array = [p_up_left, p_up_right, p_under_left, p_under_right]
         
-        print(p_up_left, p_up_right, p_under_left, p_under_right)
 
         # クリック結果保存用
         click_params = {"clicked": True}
@@ -238,8 +235,6 @@ class MainGUI(QMainWindow):
         cv2.namedWindow(winname, cv2.WINDOW_NORMAL)
         # 全画面出す
         cv2.setWindowProperty(winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        # マウスの設定
-        cv2.setMouseCallback(winname, self.on_mouse, click_params)
         
         # 背景色
         background_rgb = self.background_color.getRgb()
@@ -257,63 +252,65 @@ class MainGUI(QMainWindow):
                 # さいしょからやろ
                 continue
             
-            # エンターキーで終了
             if key == 13:
+                # エンターキーで終了
                 break
-            
-            # マウス関係
-            # マウス位置取得
-            now_mouse_position = pyautogui.position()
-            if click_params["clicked"]:
-                # クリック後の処理、処理するからフラグ修正
-                click_params["clicked"] = False
-                # どの隅を選択されたか識別
-                if now_select_area_flag == -1:
-                    if self.judge_area(now_mouse_position, p_up_left):
-                        now_select_area_flag = 1
-                    if self.judge_area(now_mouse_position, p_up_right):
-                        now_select_area_flag = 2
-                    if self.judge_area(now_mouse_position, p_under_left):
-                        now_select_area_flag = 3
-                    if self.judge_area(now_mouse_position, p_under_right):
-                        now_select_area_flag = 4
-                else:
-                    now_select_area_flag = -1
+            elif key == ord('1'):
+                # 左上いじる
+                now_select_area_flag = 0
+            elif key == ord('2'):
+                # 右上いじる
+                now_select_area_flag = 1
+            elif key == ord('3'):
+                # 左下いじる
+                now_select_area_flag = 2
+            elif key == ord('4'):
+                # 右下いじる
+                now_select_area_flag = 3
             else:
-                print(now_select_area_flag)
-                # pass
+                # ボタンが押されてなかったら戻す
+                now_select_area_flag = -1
             
+            # 指定されたとこの座標カエル
+            if now_select_area_flag != -1:
+                updated_position_array[now_select_area_flag] = pyautogui.position()
 
             # 表示設定
             # 座標設定
-            updated_movie_position = np.float32([
-                p_up_left, p_up_right, p_under_left, p_under_right
-            ])
+            updated_movie_position = np.float32(updated_position_array)
             # 変換行列生成
             self.matrix = cv2.getPerspectiveTransform(movie_original_position, updated_movie_position)
             updated_img = cv2.warpPerspective(img, self.matrix, monitor_size, borderValue=(background_rgb[2], background_rgb[1], background_rgb[0]))
             # クリックできる範囲の丸書く
-            cv2.circle(updated_img, tuple(p_up_left), self.click_circle_area, (0, 0, 255, 1))
-            cv2.circle(updated_img, tuple(p_up_right), self.click_circle_area, (0, 0, 255, 1))
-            cv2.circle(updated_img, tuple(p_under_left), self.click_circle_area, (0, 0, 255, 1))
-            cv2.circle(updated_img, tuple(p_under_right), self.click_circle_area, (0, 0, 255, 1))
+            for pos in updated_position_array:
+                cv2.circle(updated_img, tuple(pos), self.click_circle_area, (0, 0, 255, 1))
 
 
             # 表示する
             self.show_img_fullscreen(updated_img, winname)
             
 
-
         # 映像閉じる
         video.release()
 
 
-
-    # クリックした位置が対象の隅の範囲内か識別するもの
-    def judge_area(self, pos, target):
-        d = (pos[0]-target[0])^2+(pos[1]-target[1])^2
-        return d < self.click_circle_area^2
-
+        # 結果をjsonで出力
+        # 変更後の4墨
+        updated_position = {}
+        updated_position["p_up_left"] = updated_position_array[0]
+        updated_position["p_up_right"] = updated_position_array[1]
+        updated_position["p_under_left"] = updated_position_array[2]
+        updated_position["p_under_right"] = updated_position_array[3]
+        # 出力用連想配列
+        result_json = {}
+        result_json["original_name"] = self.original_movie_name
+        result_json["original_position"] = original_position
+        result_json["updated_position"] = updated_position
+        result_json["monitor_size"] = monitor_size
+        result_json["background_color"] = background_rgb
+        # 出力
+        with open(self.output_name, 'w') as f:
+            json.dump(result_json, f, indent=2)
 
 
     # 全画面表示
@@ -321,6 +318,8 @@ class MainGUI(QMainWindow):
         cv2.namedWindow(winname, cv2.WINDOW_NORMAL)
         cv2.setWindowProperty(winname, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.imshow(winname, img)
+
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
