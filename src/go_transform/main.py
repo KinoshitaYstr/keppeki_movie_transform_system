@@ -9,15 +9,15 @@ import glob
 # json関係
 import json
 # pyqt関係
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QColorDialog, QFrame, QLineEdit, QProgressBar
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QColorDialog, QFrame, QLineEdit, QProgressBar, QWidget
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import QCoreApplication
 
-class MainGUI(QMainWindow):
+class MainGUI(QWidget):
     # イニシャライズ
-    def __init__(self):
+    def __init__(self, parent=None):
         # すぱー
-        super().__init__()
+        super(MainGUI, self).__init__(parent)
 
         # フォントサイズ
         self.font_size = 15
@@ -76,9 +76,44 @@ class MainGUI(QMainWindow):
 
     # 実行
     def go(self):
+        print("go")
         # 一回閉じる
-        self.close()
+        # self.close()
 
+        # 変換用のyatusasu
+        self.now_transform = NowTransformClass(self)
+
+        # self.show()
+
+        # # 一個ずつみる
+        # for json_name in json_names:
+        #     # 読み込み
+        #     json_open = open(json_name, "r")
+        #     json_data = json.load(json_open)
+        #     print(json_data)
+
+        #     test_max = 100
+        #     for i in range(test_max):
+        #         self.progress_bar.setValue(i)
+
+
+
+# 実行用クラス
+class NowTransformClass(QWidget):
+    # イニシャライズ
+    def __init__(self, parent=None):
+        print("NowTransformClass")
+        # すぱー
+        # super(NowTransformClass, ).__init__()
+
+        # json名取得
+        # self.json_names = glob.glob(json_dir+"/*.json")
+
+        # UI初期化
+        self.now_transform.initUI()
+
+    # UI設定
+    def initUI(self):
         # 実行中の経過を表示
         # 大きさとタイトル
         self.resize(1000, 500)
@@ -87,22 +122,8 @@ class MainGUI(QMainWindow):
         self.progress_bar = QProgressBar(self)
         self.progress_bar.move(10, 10)
 
-        # json名取得
-        json_names = glob.glob(self.json_dir+"/*.json")
-
+        # 見せるぜ
         self.show()
-
-        # 一個ずつみる
-        for json_name in json_names:
-            # 読み込み
-            json_open = open(json_name, "r")
-            json_data = json.load(json_open)
-            print(json_data)
-
-            test_max = 100
-            for i in range(test_max):
-                self.progress_bar.setValue(i)
-
 
         
 

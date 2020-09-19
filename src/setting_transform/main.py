@@ -303,7 +303,7 @@ class MainGUI(QMainWindow):
         updated_position["p_under_right"] = updated_position_array[3]
         # 出力用連想配列
         result_json = {}
-        result_json["original_name"] = self.original_movie_name
+        result_json["original_name"] = self.original_movie_name.replace("\\n", "/").split("/")[-1]
         result_json["original_position"] = original_position
         result_json["updated_position"] = updated_position
         result_json["monitor_size"] = monitor_size
