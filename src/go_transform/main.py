@@ -11,7 +11,7 @@ import json
 # pyqt関係
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QColorDialog, QFrame, QLineEdit, QProgressBar, QWidget
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, QThread, pyqtSignal
 
 class MainGUI(QWidget):
     # イニシャライズ
@@ -93,7 +93,7 @@ class NowTransformClass(QWidget):
         super(NowTransformClass, self).__init__()
 
         # フォルダ内のjsonすべて取る
-        self.json_file_names = glob.glob(json_dir+"/*.json")
+        self.json_names = glob.glob(json_dir+"/*.json")
 
         # UI初期化
         self.initUI()
@@ -111,7 +111,84 @@ class NowTransformClass(QWidget):
         # 見せるぜ
         self.show()
 
+        # 実行とか
+        # for json_name in self.json_names:
+        thread = TransformThread(self.json_names[0])
+        self.progress_bar.setMaximum(thread.n_frame)
+        thread.change_value.connect(self.set_progress_bar_value)
+        thread.start()
+    
+    # プログレスバーデータセット
+    def set_progress_bar_value(self, val):
+        self.progress_bar.setValue(val)
+
+
+class TransformThread(QThread):
+    # https://codeloop.org/pyqt5-qprogressbar-with-qthread-practical-example/
+    # Create a counter thread
+    change_value = pyqtSignal(int)
+    # イニシャライズ
+    def __init__(self, json_name):
+        # すぺー
+        super(TransformThread,self).__init__()
+
+        # jsonでーた読み取り
+        json_open = open(json_name, "r")
+        self.json_data = json.load(json_open)
+
+        # cvから大本データ読み取り
+        self.original_movie = cv2.VideoCapture(self.json_data["original_name"])
+        # フレーム数とる
+        self.n_frame = int(self.original_movie.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        # 変換用行列作成
+        original_position = np.float32([
+            self.json_data["original_position"]["p_up_left"],
+            self.json_data["original_position"]["p_up_right"],
+            self.json_data["original_position"]["p_under_left"],
+            self.json_data["original_position"]["p_under_right"],
+        ])
+        updated_position = np.float32([
+            self.json_data["updated_position"]["p_up_left"],
+            self.json_data["updated_position"]["p_up_right"],
+            self.json_data["updated_position"]["p_under_left"],
+            self.json_data["updated_position"]["p_under_right"],
+        ])
+        self.matrix = cv2.getPerspectiveTransform(original_position, updated_position)
         
+        # 背景の大きさ
+        self.back_size = (self.json_data["monitor_size"][0], self.json_data["monitor_size"][0])
+        # 背景色
+        self.background_color = (
+            self.json_data["background_color"][2],
+            self.json_data["background_color"][1],
+            self.json_data["background_color"][0],
+        )
+        # 新規作成用
+        fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+        fps = int(self.original_movie.get(cv2.CAP_PROP_FPS))
+        self.updated_movie = cv2.VideoWriter("result.mp4", fourcc, fps, self.back_size)
+
+    def run(self):
+        # 最初にもどす
+        self.original_movie.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        # sinntyoku??
+        count = 0
+        # 実際にやる
+        while True:
+            count += 1
+            # 読み取り
+            ret, original_img = self.original_movie.read()
+            if not ret:
+                break
+            # 変形
+            updated_img = cv2.warpPerspective(original_img, self.matrix, self.back_size, borderValue=self.background_color)
+            self.updated_movie.write(updated_img)
+            # sinntyoku osieru
+            self.change_value.emit(count)
+        # 解放
+        self.original_movie.release()
+        self.updated_movie.release()
 
 
 if __name__ == "__main__":
