@@ -81,33 +81,19 @@ class MainGUI(QWidget):
         self.close()
 
         # 変換用のyatusasu
-        self.now_transform = NowTransformClass(self)
-
-        # self.show()
-
-        # # 一個ずつみる
-        # for json_name in json_names:
-        #     # 読み込み
-        #     json_open = open(json_name, "r")
-        #     json_data = json.load(json_open)
-        #     print(json_data)
-
-        #     test_max = 100
-        #     for i in range(test_max):
-        #         self.progress_bar.setValue(i)
-
+        self.now_transform = NowTransformClass(self, self.json_dir)
 
 
 # 実行用クラス
 class NowTransformClass(QWidget):
     # イニシャライズ
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, json_dir=""):
         print("NowTransformClass")
         # すぱー
         super(NowTransformClass, self).__init__()
 
-        # json名取得
-        # self.json_names = glob.glob(json_dir+"/*.json")
+        # フォルダ内のjsonすべて取る
+        self.json_file_names = glob.glob(json_dir+"/*.json")
 
         # UI初期化
         self.initUI()
