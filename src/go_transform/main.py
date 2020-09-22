@@ -134,7 +134,12 @@ class TransformThread(QThread):
         super(TransformThread,self).__init__()
 
         # jsonでーた読み取り
-        json_open = open(json_name, "r")
+        if os.name == "nt":
+            # windowのとき
+            json_open = open(json_name, "r", encoding="utf-8_sig")
+        else:
+            # それ以外
+            json_open = open(json_name, "r")
         self.json_data = json.load(json_open)
 
         # cvから大本データ読み取り
