@@ -4,6 +4,7 @@ import numpy as np
 # システム関係
 import sys
 import platform
+import os
 # ファイル名検索
 import glob
 # json関係
@@ -23,10 +24,7 @@ class MainGUI(QWidget):
         self.font_size = 15
 
         # 情報のあるjson名変数
-        self.json_filenames = []
-
-        # jsonフォルダパス入れるもの
-        self.json_dir = ""
+        self.json_name = ""
 
         # UIつくる
         self.initUI()
@@ -41,15 +39,15 @@ class MainGUI(QWidget):
 
         # ファイル読み込みボタン関係
         # 説明文
-        self.open_json_dir_label = self.create_label("フォルダを選択")
-        self.open_json_dir_label.move(10, 10)
+        self.open_json_name_label = self.create_label("jsonを選択")
+        self.open_json_name_label.move(10, 10)
         # 開くボタン
-        self.open_json_dir_button = QPushButton("選択する", self)
-        self.open_json_dir_button.clicked.connect(self.select_jsons_dir)
-        self.open_json_dir_button.move(10, 40)
+        self.open_json_name_button = QPushButton("選択する", self)
+        self.open_json_name_button.clicked.connect(self.select_json_file)
+        self.open_json_name_button.move(10, 40)
         # 選択されたものを表示
-        self.json_dir_label = self.create_label(self.json_dir)
-        self.json_dir_label.move(130, 45)
+        self.json_name_label = self.create_label(self.json_name)
+        self.json_name_label.move(130, 45)
 
         # 実行ボタン
         self.go_button = QPushButton("変換する", self)
@@ -68,11 +66,13 @@ class MainGUI(QWidget):
         return l
     
 
-    # フォルダ選択
-    def select_jsons_dir(self):
-        self.json_dir = QFileDialog.getExistingDirectory(self)
-        self.json_dir_label.setText(self.json_dir)
-        self.json_dir_label.resize(self.font_size*len(self.json_dir), self.font_size)
+    # ファイル選択
+    def select_json_file(self):
+        # pyqtのファイルサーチウィンドウ出してそこで出される値を取る
+        fname = QFileDialog.getOpenFileName(self, "開く", os.getcwd())
+        # そのデータから映像名とる
+        self.json_name = fname[0]
+        
 
     # 実行
     def go(self):
@@ -81,19 +81,20 @@ class MainGUI(QWidget):
         self.close()
 
         # 変換用のyatusasu
-        self.now_transform = NowTransformClass(self, self.json_dir)
+        self.now_transform = NowTransformClass(self, self.json_name)
 
 
 # 実行用クラス
 class NowTransformClass(QWidget):
     # イニシャライズ
-    def __init__(self, parent=None, json_dir=""):
+    def __init__(self, parent=None, json_name=""):
+        print(json_name)
         print("NowTransformClass")
         # すぱー
         super(NowTransformClass, self).__init__()
 
         # フォルダ内のjsonすべて取る
-        self.json_names = glob.glob(json_dir+"/*.json")
+        self.json_name = json_name
 
         # UI初期化
         self.initUI()
@@ -112,12 +113,11 @@ class NowTransformClass(QWidget):
         self.show()
 
         # 実行とか
-        for json_name in self.json_names:
-            self.thread = TransformThread(self.json_names[0])
-            self.progress_bar.setMaximum(100)
-            self.progress_bar.setValue(0)
-            self.thread.change_value.connect(self.set_progress_bar_value)
-            self.thread.start()
+        self.thread = TransformThread(self.json_name)
+        self.progress_bar.setMaximum(100)
+        self.progress_bar.setValue(0)
+        self.thread.change_value.connect(self.set_progress_bar_value)
+        self.thread.start()
 
     # プログレスバーデータセット
     def set_progress_bar_value(self, val):
