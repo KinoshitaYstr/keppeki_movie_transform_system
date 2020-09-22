@@ -112,12 +112,13 @@ class NowTransformClass(QWidget):
         self.show()
 
         # 実行とか
-        # for json_name in self.json_names:
-        self.thread = TransformThread(self.json_names[0])
-        self.progress_bar.setMaximum(100)
-        self.thread.change_value.connect(self.set_progress_bar_value)
-        self.thread.start()
-    
+        for json_name in self.json_names:
+            self.thread = TransformThread(json_name)
+            self.progress_bar.setMaximum(100)
+            self.thread.change_value.connect(self.set_progress_bar_value)
+            self.thread.start()
+        self.close()
+        
     # プログレスバーデータセット
     def set_progress_bar_value(self, val):
         self.progress_bar.setValue(val)
