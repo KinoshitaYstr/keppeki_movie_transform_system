@@ -113,10 +113,10 @@ class NowTransformClass(QWidget):
 
         # 実行とか
         # for json_name in self.json_names:
-        thread = TransformThread(self.json_names[0])
-        self.progress_bar.setMaximum(thread.n_frame)
-        thread.change_value.connect(self.set_progress_bar_value)
-        thread.start()
+        self.thread = TransformThread(self.json_names[0])
+        self.progress_bar.setMaximum(100)
+        self.thread.change_value.connect(self.set_progress_bar_value)
+        self.thread.start()
     
     # プログレスバーデータセット
     def set_progress_bar_value(self, val):
@@ -171,7 +171,7 @@ class TransformThread(QThread):
 
     def run(self):
         # 最初にもどす
-        self.original_movie.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        # self.original_movie.set(cv2.CAP_PROP_POS_FRAMES, 0)
         # sinntyoku??
         count = 0
         # 実際にやる
@@ -185,7 +185,7 @@ class TransformThread(QThread):
             updated_img = cv2.warpPerspective(original_img, self.matrix, self.back_size, borderValue=self.background_color)
             self.updated_movie.write(updated_img)
             # sinntyoku osieru
-            self.change_value.emit(count)
+            self.change_value.emit(int(count*100/self.n_frame))
         # 解放
         self.original_movie.release()
         self.updated_movie.release()
