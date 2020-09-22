@@ -78,7 +78,7 @@ class MainGUI(QWidget):
     def go(self):
         print("go")
         # 一回閉じる
-        # self.close()
+        self.close()
 
         # 変換用のyatusasu
         self.now_transform = NowTransformClass(self)
@@ -104,13 +104,13 @@ class NowTransformClass(QWidget):
     def __init__(self, parent=None):
         print("NowTransformClass")
         # すぱー
-        # super(NowTransformClass, ).__init__()
+        super(NowTransformClass, self).__init__()
 
         # json名取得
         # self.json_names = glob.glob(json_dir+"/*.json")
 
         # UI初期化
-        self.now_transform.initUI()
+        self.initUI()
 
     # UI設定
     def initUI(self):
