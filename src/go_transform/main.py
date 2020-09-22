@@ -113,12 +113,12 @@ class NowTransformClass(QWidget):
 
         # 実行とか
         for json_name in self.json_names:
-            self.thread = TransformThread(json_name)
+            self.thread = TransformThread(self.json_names[0])
             self.progress_bar.setMaximum(100)
+            self.progress_bar.setValue(0)
             self.thread.change_value.connect(self.set_progress_bar_value)
             self.thread.start()
-        self.close()
-        
+
     # プログレスバーデータセット
     def set_progress_bar_value(self, val):
         self.progress_bar.setValue(val)
@@ -168,7 +168,7 @@ class TransformThread(QThread):
         # 新規作成用
         fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
         fps = int(self.original_movie.get(cv2.CAP_PROP_FPS))
-        self.updated_movie = cv2.VideoWriter("result.mp4", fourcc, fps, self.back_size)
+        self.updated_movie = cv2.VideoWriter("result_"+self.json_data["original_name"], fourcc, fps, self.back_size)
 
     def run(self):
         # 最初にもどす
