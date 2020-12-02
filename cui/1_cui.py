@@ -29,6 +29,7 @@ def main():
     create_transform_video(input_fname, output_fname, datas)
 
 def create_transform_video(input_fname, output_fname, datas):
+    print("create_transform_video")
     # 辞書と入力ファイルがあってるか確認
     if input_fname != datas["fname"]:
         print("ふぁいるちゃうで")
@@ -79,6 +80,7 @@ def create_transform_video(input_fname, output_fname, datas):
 
 
 def setting_transform(input_fname):
+    print("setting_transform")
     # 映像開く
     video = cv2.VideoCapture(input_fname)
     # 開けた確認
@@ -160,6 +162,8 @@ def setting_transform(input_fname):
     
     # 閉じ
     video.release()
+    # 画面と次
+    cv2.destroyAllWindows()
 
     # 大きさとか座標の辞書か
     result = {
