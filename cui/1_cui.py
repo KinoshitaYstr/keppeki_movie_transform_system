@@ -70,7 +70,6 @@ def setting_transform(input_fname):
     while True:
         # 画像
         ret, img = video.read()
-        print(ret, img)
         # 読み込みできんかったら映像の最初に移動
         if not ret:
             video.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -85,7 +84,7 @@ def setting_transform(input_fname):
         print(key, ret, img)
         
         # 表示
-        show_img_fullscreen(img)
+        show_img_fullscreen(winname, img)
     
     # 閉じ
     video.release()
