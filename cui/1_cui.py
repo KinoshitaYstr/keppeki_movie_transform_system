@@ -77,6 +77,7 @@ def setting_transform(input_fname):
         if key == 13:
             # エンターキーで終了
             break
+        print(key, ret, img)
         
         # 表示
         show_img_fullscreen(img)
