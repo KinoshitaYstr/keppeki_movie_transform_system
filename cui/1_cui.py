@@ -53,13 +53,10 @@ def setting_transform(input_fname):
     ])
     # 変換後の座標
     update_up_left = [0, 0]
-    update_up_right = [video_width, 0]
-    update_under_left = [0, video_height]
-    update_under_right = [video_width, video_height]
-    # np化
-    update_pos = np.float32([
-        update_up_left, update_up_right, update_under_left, update_under_right,
-    ])
+    update_up_right = [monitor_width, 0]
+    update_under_left = [0, monitor_height]
+    update_under_right = [monitor_width, monitor_height]
+    update_array = [update_up_left, update_up_right, update_under_left, update_under_right]
     
     # opencv表示
     winname = "transform"
@@ -81,10 +78,32 @@ def setting_transform(input_fname):
         if key == 13:
             # エンターキーで終了
             break
-        print(key, ret, img)
+        elif key == ord('1'):
+            # 1なら左上の位置をマウスの位置に合わせる
+            update_array[0] = pyautogui.position()
+        elif key == ord('2'):
+            # 2なら右上の位置をマウスの位置に合わせる
+            update_array[1] = pyautogui.position()
+        elif key == ord('3'):
+            # 3なら左下の位置をマウスの位置に合わせる
+            update_array[2] = pyautogui.position()
+        elif key == ord('4'):
+            # 4なら右下の位置をマウスの位置に合わせる
+            update_array[3] = pyautogui.position()
+        
+            # 変形後の座標np化
+            update_pos = np.float32(update_array)
+            # 変換行列作成
+            matrix = cv2.getPerspectiveTransform(
+                original_pos, update_pos
+            )
+            # 変換
+            update_img = cv2.warpPerspective(
+                img, matrix, (monitor_width, monitor_height)
+            )
         
         # 表示
-        show_img_fullscreen(winname, img)
+        show_img_fullscreen(winname, update_img)
     
     # 閉じ
     video.release()
