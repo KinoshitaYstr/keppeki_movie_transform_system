@@ -23,7 +23,60 @@ def main():
     output_fname = input_fname.split(".")[0]+".json"
 
     # 変形設定
-    setting_transform(input_fname)
+    datas = setting_transform(input_fname)
+
+    # 変形して保存
+    create_transform_video(input_fnamem output_fname, datas)
+
+def create_transform_video(input_fname, output_fname, datas):
+    # 辞書と入力ファイルがあってるか確認
+    if input_fname != datas["fname"]:
+        print("ふぁいるちゃうで")
+        return
+    
+    # 座標設定
+    # 元の情報
+    original_pos = np.float32([
+        [0, 0],
+        [datas["video_width"], 0],
+        [0, datas["video_height"]],
+        [datas["video_width"], datas["video_height"]]
+    ])
+    # 変換後の座標
+    update_pos = np.float32([
+        datas["update_up_left"], datas["update_up_right"], datas["update_under_left"], datas["update_under_right"]
+    ])
+    # 変換表列
+    matrix = cv2.getPerspectiveTransform(original_pos, update_pos)
+    
+    # 背景情報
+    monitor_width = datas["monitor_width"]
+    monitor_height = datas["monitor_height"]
+
+    # 映像関係
+    # 映像開く
+    video = cv2.VideoCapture(input_fname)
+    # 新規作成
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+    fps = int(video.get(cv2.CAP_PROP_FPS))
+    update_video = cv2.VideoWriter(output_fname, fourcc, fps, (monitor_width, monitor_height))
+
+    while True:
+        # 読み取り
+        ret, img = video.read()
+        if not ret:
+            break
+
+        # 変形
+        update_img = cv2.warpPerspective(img, matrix, (monitor_width, monitor_height))
+
+        # 書き込み
+        update_video.write(update_img)
+
+    # 解放
+    video.release()
+    update_video.release()
+
 
 def setting_transform(input_fname):
     # 映像開く
@@ -107,6 +160,21 @@ def setting_transform(input_fname):
     
     # 閉じ
     video.release()
+
+    # 大きさとか座標の辞書か
+    result = {
+        "fname": input_fname,
+        "monitor_width": monitor_width,
+        "monitor_height": monitor_height,
+        "video_width": video_width,
+        "video_heght": video_heght,
+        "update_up_left": update_array[0],
+        "update_up_right": update_array[1],
+        "update_under_left": update_array[2],
+        "update_under_right": update_array[3]
+    }
+
+    return result
         
 # 全画面表示用
 def show_img_fullscreen(winname, img):
