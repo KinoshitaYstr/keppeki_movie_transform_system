@@ -23,6 +23,7 @@ def main():
     output_fname = input_fname.split(".")[0]+".json"
 
     # 変形設定
+    setting_transform(input_fname)
 
 def setting_transform(input_fname):
     # 映像開く
@@ -43,18 +44,18 @@ def setting_transform(input_fname):
     original_under_left = [0, video_height]
     original_under_right = [video_width, video_height]
     # np化
-    original_pos = np.float32({
+    original_pos = np.float32([
         original_up_left, original_up_right, original_under_left, original_under_right,
-    })
+    ])
     # 変換後の座標
     update_up_left = [0, 0]
     update_up_right = [video_width, 0]
     update_under_left = [0, video_height]
     update_under_right = [video_width, video_height]
     # np化
-    update_pos = np.float32({
+    update_pos = np.float32([
         update_up_left, update_up_right, update_under_left, update_under_right,
-    })
+    ])
     
     # opencv表示
     winname = "transform"
