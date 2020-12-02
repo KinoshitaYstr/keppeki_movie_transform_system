@@ -91,16 +91,16 @@ def setting_transform(input_fname):
             # 4なら右下の位置をマウスの位置に合わせる
             update_array[3] = pyautogui.position()
         
-            # 変形後の座標np化
-            update_pos = np.float32(update_array)
-            # 変換行列作成
-            matrix = cv2.getPerspectiveTransform(
-                original_pos, update_pos
-            )
-            # 変換
-            update_img = cv2.warpPerspective(
-                img, matrix, (monitor_width, monitor_height)
-            )
+        # 変形後の座標np化
+        update_pos = np.float32(update_array)
+        # 変換行列作成
+        matrix = cv2.getPerspectiveTransform(
+            original_pos, update_pos
+        )
+        # 変換
+        update_img = cv2.warpPerspective(
+            img, matrix, (monitor_width, monitor_height)
+        )
         
         # 表示
         show_img_fullscreen(winname, update_img)
