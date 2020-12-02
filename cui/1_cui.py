@@ -20,7 +20,8 @@ def main():
         print("ファイルが存在しません")
         return
     # 出力名
-    output_fname = input_fname.split(".")[0]+".json"
+    # output_fname = input_fname.split(".")[0]+".json"
+    output_fname = "new_"+input_fname
 
     # 変形設定
     datas = setting_transform(input_fname)
