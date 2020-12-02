@@ -10,6 +10,10 @@ from screeninfo import get_monitors
 import json
 # GUI関係
 import pyautogui
+# バー
+from tqdm import tqdm
+# 音声関係いじるもの
+import moviepy.editor as mp
 
 def main():
     # コマンドライン引数
@@ -31,6 +35,26 @@ def main():
 
     # 変形して保存
     create_transform_video(input_fname, output_fname, datas)
+
+    # 音付ける
+    set_sound(output_fname, input_fname)
+
+def set_sound(input_fname, original_fname):
+    print("set_sound")
+    # ダブりが大変だから一度名前変更
+    os.rename(input_fname, ".tmp.mp4")
+
+    # 音声抽出
+    original_sound = mp.VideoFileClip(original_fname).subclip()
+    original_sound.audio.write_audiofile(".tmp.mp3")
+    
+    # 音声付与
+    output = mp.VideoFileClip(".tmp.mp4").subclip()
+    output.write_videofile(input_fname, audio=".tmp.mp3")
+
+    # 不要なもの消す
+    os.remove(".tmp.mp3")
+    os.remove(".tmp.mp4")
 
 def create_transform_video(input_fname, output_fname, datas):
     print("create_transform_video")
@@ -66,7 +90,10 @@ def create_transform_video(input_fname, output_fname, datas):
     fps = int(video.get(cv2.CAP_PROP_FPS))
     update_video = cv2.VideoWriter(output_fname, fourcc, fps, (monitor_width, monitor_height))
 
-    while True:
+    # 映像の枚数
+    n_frame = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    for i in tqdm(range(n_frame)):
         # 読み取り
         ret, img = video.read()
         if not ret:
