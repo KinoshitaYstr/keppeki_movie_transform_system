@@ -195,6 +195,7 @@ class TransformThread(QThread):
         # 解放
         self.original_movie.release()
         self.updated_movie.release()
+        print("Finish")
 
 
 if __name__ == "__main__":
