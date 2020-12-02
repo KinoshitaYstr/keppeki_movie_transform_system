@@ -28,6 +28,10 @@ def main():
 def setting_transform(input_fname):
     # 映像開く
     video = cv2.VideoCapture(input_fname)
+    # 開けた確認
+    if not video.isOpened():
+        print("video open error")
+        return
 
     # 映像情報
     video_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
