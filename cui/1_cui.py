@@ -25,6 +25,9 @@ def main():
 
     # 変形設定
     datas = setting_transform(input_fname)
+    print(datas)
+    with open(input_fname.split(".")[0]+".json") as f:
+        json.dump(datas, f, indent=2)
 
     # 変形して保存
     create_transform_video(input_fname, output_fname, datas)
