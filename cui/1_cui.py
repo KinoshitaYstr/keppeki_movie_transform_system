@@ -64,15 +64,16 @@ def setting_transform(input_fname):
 
     # 一枚ずつ表示
     while True:
-        # キー入力
-        key = cv2.waitKey(1)&0xff
-        # 画像🐤
+        # 画像
         ret, img = video.read()
+        print(ret, img)
         # 読み込みできんかったら映像の最初に移動
         if not ret:
             video.set(cv2.CAP_PROP_POS_FRAMES, 0)
             continue
 
+        # キー入力
+        key = cv2.waitKey(1)&0xff
         # キー入力結果
         if key == 13:
             # エンターキーで終了
