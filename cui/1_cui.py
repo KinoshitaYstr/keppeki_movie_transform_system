@@ -167,7 +167,7 @@ def setting_transform(input_fname):
         "monitor_width": monitor_width,
         "monitor_height": monitor_height,
         "video_width": video_width,
-        "video_heght": video_height,
+        "video_height": video_height,
         "update_up_left": update_array[0],
         "update_up_right": update_array[1],
         "update_under_left": update_array[2],
