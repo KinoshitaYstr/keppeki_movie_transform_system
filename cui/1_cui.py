@@ -26,7 +26,7 @@ def main():
     datas = setting_transform(input_fname)
 
     # 変形して保存
-    create_transform_video(input_fnamem output_fname, datas)
+    create_transform_video(input_fname, output_fname, datas)
 
 def create_transform_video(input_fname, output_fname, datas):
     # 辞書と入力ファイルがあってるか確認
