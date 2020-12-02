@@ -15,7 +15,7 @@ def main():
     # コマンドライン引数
     args = sys.argv
     # 入力ファイル名
-    input_fname = args[0]
+    input_fname = args[1]
     if not os.path.exists(input_fname):
         print("ファイルが存在しません")
         return
