@@ -3,3 +3,7 @@
 *.json
 lenna.gif
 *test.py
+dist
+build
+__pycache__
+*.spec
