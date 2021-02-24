@@ -53,7 +53,7 @@ class GUI():
 
         # 出力ファイル名
         # 説明
-        self.output_fname_detail = tkinter.Label(text=u'\n出力ファイル名(パス)')
+        self.output_fname_detail = tkinter.Label(text=u'\n出力ファイル名(json形式)')
         self.output_fname_detail.pack()
         # フォーム
         self.output_fname_edit_box = tkinter.Entry()

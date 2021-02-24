@@ -37,7 +37,7 @@ class GUI():
 
         # 入力ファイル名選択
         # 説明
-        self.detail_input_file = tkinter.Label(text="\njsonファイル名(パス)")
+        self.detail_input_file = tkinter.Label(text="\njsonファイル名(jsonファイル)")
         self.detail_input_file.pack()
         # ボタン
         self.select_input_fname_button = tkinter.Button(text="選択する")
@@ -52,7 +52,7 @@ class GUI():
 
         # 出力ファイル名
         # 説明
-        self.output_fname_detail = tkinter.Label(text=u'\n出力ファイル名(パス)')
+        self.output_fname_detail = tkinter.Label(text=u'\n出力ファイル名(mp4形式)')
         self.output_fname_detail.pack()
         # フォーム
         self.output_fname_edit_box = tkinter.Entry()
@@ -114,7 +114,7 @@ class GUI():
         video = cv2.VideoCapture(input_fname)
         # 新規作成
         fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-        fps = int(video.get(cv2.CAP_PROP_FPS))
+        fps = video.get(cv2.CAP_PROP_FPS)
         update_video = cv2.VideoWriter(output_fname, fourcc, fps, (monitor_width, monitor_height))
 
         # 映像の枚数

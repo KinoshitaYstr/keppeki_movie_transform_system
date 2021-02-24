@@ -63,7 +63,7 @@ def create_transform_video(datas, output_fname):
     video = cv2.VideoCapture(input_fname)
     # 新規作成
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    fps = int(video.get(cv2.CAP_PROP_FPS))
+    fps = video.get(cv2.CAP_PROP_FPS)
     update_video = cv2.VideoWriter(output_fname, fourcc, fps, (monitor_width, monitor_height))
 
     # 映像の枚数
