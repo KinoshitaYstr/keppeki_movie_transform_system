@@ -1,5 +1,18 @@
 * python version : 3.7.2
 
+# windows
+## 実行ファイル作成
+### 共通
+* pip install -r requirements.txt
+### CUI
+* pyinstaller .\\cui\\1_cui.py --onefile --noconsole
+* pyinstaller .\\cui\\2_cui.py --onefile --noconsole
+### GUI
+* pyinstaller .\\gui\\1_setting_transform.py --onefile --noconsole
+* pyinstaller .\\gui\\2_transform.py --onefile --noconsole
+
+# ↓いろんなことめも
+
 ### setup
 * pip install -r requirements.txt
 
